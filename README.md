@@ -5,3 +5,9 @@ Nieve process to compare the code.py checksum with one in a little datastore, an
 Even more Nieve process to just backup the lib folder as a zip on an interval.
 
 A very simple but effective way to backup your code.py and lib folder and better than nothing.
+
+## Todo
+
+- /lib to use the same checksum process as code.py
+- support more than just code.py
+- everything configurable though CLI args (System.CommandLine)
