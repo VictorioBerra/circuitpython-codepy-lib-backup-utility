@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using System.IO;
 using System.Security.Cryptography;
 
+[Obsolete("This worker is no longer used. It was replaced by the GitCodePyWorker.")]
 public class CodePyRapidWorker : BackgroundService
 {
     private readonly ILogger<CodePyRapidWorker> _logger;
