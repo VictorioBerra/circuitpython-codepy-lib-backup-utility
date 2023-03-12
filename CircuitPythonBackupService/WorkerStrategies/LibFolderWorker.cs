@@ -1,4 +1,4 @@
-namespace CircuitPythonBackupService;
+namespace CircuitPythonBackupService.WorkerStrategies;
 
 using System.IO;
 

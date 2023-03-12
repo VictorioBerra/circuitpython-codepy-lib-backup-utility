@@ -1,7 +1,8 @@
-namespace CircuitPythonBackupService;
+namespace CircuitPythonBackupService.WorkerStrategies;
 
 using CircuitPythonBackupService.Models;
 using JsonFlatFileDataStore;
+using Microsoft.Extensions.Logging;
 using System.IO;
 using System.Security.Cryptography;
 
@@ -35,7 +36,16 @@ public class CodePyRapidWorker : BackgroundService
 
                     _logger.LogInformation("Performing code.py backup check");
 
-                    PerformCodePyArchival(drive.Name);
+                    try
+                    {
+                        PerformCodePyArchival(drive.Name);
+                    }
+                    catch (IOException ioex)
+                    {
+                        // Not uncommon to see:
+                        // The process cannot access the file 'E:\code.py' because it is being used by another process.
+                        _logger.LogError(ioex, "IO Exception during processing. Logging and moving on.");
+                    }
                 }
             }
 
@@ -120,6 +130,6 @@ public class CodePyRapidWorker : BackgroundService
         using var md5 = MD5.Create();
         using var stream = File.OpenRead(fileName);
         byte[] checksum = md5.ComputeHash(stream);
-        return  BitConverter.ToString(checksum).Replace("-", string.Empty).ToLower();
+        return BitConverter.ToString(checksum).Replace("-", string.Empty).ToLower();
     }
 }

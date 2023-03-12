@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <PackageReference Include="JsonFlatFileDataStore" Version="2.4.1" />
+    <PackageReference Include="LibGit2Sharp" Version="0.27.0-preview-0182" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.0" />
     <PackageReference Include="SharpZipLib" Version="1.4.2" />
   </ItemGroup>
