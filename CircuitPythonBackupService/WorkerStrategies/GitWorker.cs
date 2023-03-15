@@ -1,5 +1,6 @@
 ﻿using CircuitPythonBackupService.CommandLineParser;
 using CircuitPythonBackupService.Models;
+using CircuitPythonBackupService.Services;
 using Hardware.Info;
 using LibGit2Sharp;
 using Microsoft.Extensions.Options;
@@ -11,17 +12,17 @@ namespace CircuitPythonBackupService
     public class GitWorker : BackgroundService
     {
         private readonly ILogger<GitWorker> logger;
+        private readonly CircuitPythonUSBDeviceScanner circuitPythonUSBDeviceScanner;
         private readonly AllOptions allOptions;
-        private readonly IHardwareInfo hardwareInfo;
 
         public GitWorker(
             ILogger<GitWorker> logger,
-            HardwareInfoSingleton hardwareInfoService,
+            CircuitPythonUSBDeviceScanner circuitPythonUSBDeviceScanner,
             AllOptions allOptions)
         {
             this.logger = logger;
+            this.circuitPythonUSBDeviceScanner = circuitPythonUSBDeviceScanner;
             this.allOptions = allOptions;
-            this.hardwareInfo = hardwareInfoService.hardwareInfo;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -30,35 +31,21 @@ namespace CircuitPythonBackupService
             {
                 this.logger.LogInformation("GitWorker running at: {Time}", DateTimeOffset.Now);
 
-                this.hardwareInfo.RefreshDriveList();
-                this.logger.LogInformation("Refreshed drive information");
+                var drives = circuitPythonUSBDeviceScanner.FindCircuitPythonDrives();
 
-                var circuitPyDrive = this.hardwareInfo.DriveList
-                    .Where(d =>
-                        d.PartitionList.Any(p =>
-                            p.VolumeList.Any(v =>
-                                v.VolumeName.Equals("CIRCUITPY", StringComparison.OrdinalIgnoreCase))));
-
-                foreach (var drive in circuitPyDrive)
+                if(!drives.Any())
                 {
-                    this.logger.LogInformation("Drive found with volume name of 'CIRCUITPY' and serial {circuitPyDriveSerial}", drive.SerialNumber);
-                    var circuitPyLogicalVolume = 
-                        drive.PartitionList
-                        .SelectMany(x => x.VolumeList)
-                        .SingleOrDefault(y => y.VolumeName.Equals("CIRCUITPY", StringComparison.OrdinalIgnoreCase));
-
-                    if(circuitPyLogicalVolume is null)
+                    this.logger.LogInformation("No CircuitPython drives found, done with backup until next interval.");
+                }
+                else
+                {
+                    foreach (var drive in drives)
                     {
-                        this.logger.LogError("Expected to find a single logical volume with volume name 'CIRCUITPY' for the drive.");
-                        return;
+                        PerformCodePyGit(drive.Name, drive.SerialNumber);
                     }
-
-                    this.logger.LogInformation("Found logical volume with volume name 'CIRCUITPY' for the disk with Volume Serial Number {VolumeSerialNumber}.", circuitPyLogicalVolume.VolumeSerialNumber);
-
-                    PerformCodePyGit(circuitPyLogicalVolume.Name, drive.SerialNumber);
                 }
 
-                await Task.Delay(1000 * 10, stoppingToken);
+                await Task.Delay(1000 * this.allOptions.CodePyGitWorkerIntervalSeconds, stoppingToken);
             }
         }
         

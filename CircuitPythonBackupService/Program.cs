@@ -5,6 +5,7 @@ using Serilog;
 using CommandLine;
 using Microsoft.Extensions.Options;
 using CircuitPythonBackupService.CommandLineParser;
+using CircuitPythonBackupService.Services;
 
 Log.Logger = new LoggerConfiguration()
     .Enrich.FromLogContext()
@@ -31,6 +32,7 @@ static IHostBuilder CreateHostBuilder(string[] args) =>
         .ConfigureServices(services =>
         {
             services.AddSingleton<HardwareInfoSingleton>();
+            services.AddSingleton<CircuitPythonUSBDeviceScanner>();
 
             Parser.Default.ParseArguments<AllOptions>(args)
                .WithParsed(parsedAllOptions =>
@@ -44,7 +46,7 @@ static IHostBuilder CreateHostBuilder(string[] args) =>
 
                    if (parsedAllOptions.UseCodePyGitWorker)
                    {
-                       services.AddHostedService<GitCodePyWorker>();
+                       services.AddHostedService<GitWorker>();
                    }
                });
         })

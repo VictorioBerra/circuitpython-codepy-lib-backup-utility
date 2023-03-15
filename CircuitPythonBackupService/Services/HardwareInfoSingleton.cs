@@ -1,6 +1,6 @@
 ﻿using Hardware.Info;
 
-namespace CircuitPythonBackupService
+namespace CircuitPythonBackupService.Services
 {
     public class HardwareInfoSingleton
     {
