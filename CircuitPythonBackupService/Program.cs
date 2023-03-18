@@ -6,6 +6,7 @@ using CommandLine;
 using Microsoft.Extensions.Options;
 using CircuitPythonBackupService.CommandLineParser;
 using CircuitPythonBackupService.Services;
+using System.Runtime.CompilerServices;
 
 Log.Logger = new LoggerConfiguration()
     .Enrich.FromLogContext()
@@ -14,8 +15,16 @@ Log.Logger = new LoggerConfiguration()
 
 try
 {
-    Log.Information("Starting host");
-    CreateHostBuilder(args).Build().Run();
+    // Check for help, dont start host.
+    var preliminaryParseResult = Parser.Default.ParseArguments<AllOptions>(args);
+    if (preliminaryParseResult.Errors.Any(x => x.Tag == ErrorType.HelpRequestedError))
+    {
+        Environment.Exit(0);
+    }
+
+    CreateHostBuilder(args)
+        .Build()
+        .Run();
     return 0;
 }
 catch (Exception ex)
@@ -33,7 +42,7 @@ static IHostBuilder CreateHostBuilder(string[] args) =>
         {
             services.AddSingleton<HardwareInfoSingleton>();
             services.AddSingleton<CircuitPythonUSBDeviceScanner>();
-
+            
             Parser.Default.ParseArguments<AllOptions>(args)
                .WithParsed(parsedAllOptions =>
                {
