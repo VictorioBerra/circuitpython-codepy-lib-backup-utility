@@ -56,26 +56,18 @@ namespace CircuitPythonBackupService
             var codePyDestinationGitRepoPath = 
                 Path.Join(this.allOptions.CodePyGitWorkerRepoDirectory, driveSerialNumber);
 
-            var filesToStage = this.allOptions.CodePyGitWorkerFiles
-                .Select(x => new FileToStage
-                { 
-                    FileName = x,
-                    FullPath = Path.Join(driveLetter, x),
-                    DestintionGitFullPath = Path.Join(codePyDestinationGitRepoPath, x),
-                });
+            var validatedFiles = GetValidFiles(
+                this.allOptions.CodePyGitWorkerFiles
+                    .Select(x => new FileToStage
+                    {
+                        FileName = x,
+                        FullPath = Path.Join(driveLetter, x),
+                        DestintionGitFullPath = Path.Join(codePyDestinationGitRepoPath, x),
+                    }));
 
-            this.logger.LogInformation("Files to backup to your git folder {@FilesToStage}", filesToStage);
+            this.logger.LogInformation("Valid files to stage {ValidFilesToStageCount}.", validatedFiles.Count);
 
-            foreach (var fileToStage in filesToStage)
-            {
-                if (!File.Exists(fileToStage.FullPath))
-                {
-                    this.logger.LogError("File not found {FilePath}, done with backup until next interval.", fileToStage);
-                    return;
-                }
-            }
-
-            if(this.allOptions.CodePyGitWorkerRepoCreateDirectory)
+            if (this.allOptions.CodePyGitWorkerRepoCreateDirectory)
             {
                 this.logger.LogInformation("Creating {RepoPath} if not exists.", codePyDestinationGitRepoPath);
                 Directory.CreateDirectory(codePyDestinationGitRepoPath);
@@ -112,7 +104,7 @@ namespace CircuitPythonBackupService
                 return;
             }
 
-            foreach (var fileToStage in filesToStage)
+            foreach (var fileToStage in validatedFiles)
             {
                 File.Copy(
                     fileToStage.FullPath,
@@ -130,7 +122,7 @@ namespace CircuitPythonBackupService
                 return;
             }
 
-            foreach (var fileToStage in filesToStage)
+            foreach (var fileToStage in validatedFiles)
             {
                 Commands.Stage(repo, fileToStage.DestintionGitFullPath);
                 this.logger.LogInformation("Staged {FileToStage}.", fileToStage.DestintionGitFullPath);
@@ -141,7 +133,7 @@ namespace CircuitPythonBackupService
                 authorAndCommitter,
                 authorAndCommitter);
             
-            this.logger.LogInformation("Committed {filesToStageCount} to index.", filesToStage.Count());
+            this.logger.LogInformation("Committed {filesToStageCount} to index.", validatedFiles.Count());
             
             this.logger.LogInformation("Total commits so far in repo: {CommitCount}", repo.Commits.Count());
         }
@@ -156,6 +148,27 @@ namespace CircuitPythonBackupService
                          status.Modified.Count(),
                          status.Missing.Count(),
                          status.Ignored.Count());
+        }
+
+        private List<FileToStage> GetValidFiles(
+            IEnumerable<FileToStage> filesToStageFromConfiguration)
+        {
+            this.logger.LogInformation("Files to backup to your git folder {@FilesToStage}", filesToStageFromConfiguration);
+
+            var validatedFiles = new List<FileToStage>();
+            foreach (var fileToStage in filesToStageFromConfiguration)
+            {
+                if (!File.Exists(fileToStage.FullPath))
+                {
+                    this.logger.LogError("File not found {@FileToStage}, skipping this file.", fileToStage);
+                }
+                else
+                {
+                    validatedFiles.Add(fileToStage);
+                }
+            }
+
+            return validatedFiles;
         }
     }
 }
