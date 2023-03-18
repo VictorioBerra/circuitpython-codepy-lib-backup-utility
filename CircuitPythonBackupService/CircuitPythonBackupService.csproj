@@ -1,22 +1,35 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Worker">
 
-  <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <UserSecretsId>dotnet-CircuitPythonBackupService-52e3c0a0-c752-4d48-847a-61f884878eca</UserSecretsId>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net7.0</TargetFramework>
+		<PublishSingleFile>true</PublishSingleFile>
+		<SelfContained>true</SelfContained>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<UserSecretsId>dotnet-CircuitPythonBackupService-52e3c0a0-c752-4d48-847a-61f884878eca</UserSecretsId>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="CommandLineParser" Version="2.9.1" />
-    <PackageReference Include="Hardware.Info" Version="10.1.1.1" />
-    <PackageReference Include="JsonFlatFileDataStore" Version="2.4.1" />
-    <PackageReference Include="LibGit2Sharp" Version="0.27.0-preview-0182" />
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.1" />
-    <PackageReference Include="Serilog.Extensions.Hosting" Version="5.0.1" />
-    <PackageReference Include="Serilog.Settings.Configuration" Version="3.4.0" />
-    <PackageReference Include="Serilog.Sinks.Console" Version="4.1.0" />
-    <PackageReference Include="SharpZipLib" Version="1.4.2" />
-    <PackageReference Include="System.Management" Version="7.0.0" />
-  </ItemGroup>
+	<PropertyGroup Label="Package">
+		<Authors>Victorio Berra</Authors>
+		<Product>CircuitPython Backup Utility</Product>
+		<Description>Small backup utility that detects a CircuitPython drive and backs up lib and code files.</Description>
+		<Copyright>Copyright © Victorio Berra. All rights Reserved</Copyright>
+	</PropertyGroup>
+
+	<PropertyGroup Label="Versioning">
+		<MinVerDefaultPreReleasePhase>preview</MinVerDefaultPreReleasePhase>
+		<MinVerVerbosity>normal</MinVerVerbosity>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="MinVer" PrivateAssets="all" Version="4.2.0" />
+		<PackageReference Include="CommandLineParser" Version="2.9.1" />
+		<PackageReference Include="Hardware.Info" Version="10.1.1.1" />
+		<PackageReference Include="LibGit2Sharp" Version="0.27.0-preview-0182" />
+		<PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.1" />
+		<PackageReference Include="Serilog.Extensions.Hosting" Version="5.0.1" />
+		<PackageReference Include="Serilog.Settings.Configuration" Version="3.4.0" />
+		<PackageReference Include="Serilog.Sinks.Console" Version="4.1.0" />
+		<PackageReference Include="SharpZipLib" Version="1.4.2" />
+	  </ItemGroup>
 </Project>
