@@ -33,12 +33,12 @@ jobs:
       # Run dotnet build and publish
       - name: dotnet build and publish cross plat
         run: |
-          dotnet publish ./CircuitPythonBackupService -c Release -p ./publish --runtime win-x64
-          dotnet publish ./CircuitPythonBackupService -c Release -o ./publish --runtime win-x86
-          dotnet publish ./CircuitPythonBackupService -c Release -o ./publish --runtime linux-x64
-          dotnet publish ./CircuitPythonBackupService -c Release -o ./publish --runtime linux-arm
-          dotnet publish ./CircuitPythonBackupService -c Release -o ./publish --runtime linux-arm64
-          dotnet publish ./CircuitPythonBackupService -c Release -o ./publish --runtime osx-x64
+          dotnet publish ./CircuitPythonBackupService -c Release -o ./publish/win-x64 --runtime win-x64
+          dotnet publish ./CircuitPythonBackupService -c Release -o ./publish/win-x86 --runtime win-x86
+          dotnet publish ./CircuitPythonBackupService -c Release -o ./publish/linux-x64 --runtime linux-x64
+          dotnet publish ./CircuitPythonBackupService -c Release -o ./publish/linux-arm --runtime linux-arm
+          dotnet publish ./CircuitPythonBackupService -c Release -o ./publish/linux-arm64 --runtime linux-arm64
+          dotnet publish ./CircuitPythonBackupService -c Release -o ./publish/osx-x64 --runtime osx-x64
 
       - uses: papeloto/action-zip@v1
         with:
